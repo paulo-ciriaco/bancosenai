@@ -29,6 +29,22 @@ namespace BancoSENAIAPI.Controllers
             return Created("", novaCarteira);
         }
 
+        [HttpPut("{numero}")]
+        public IActionResult Alterar(int numero, [FromBody] Carteira carteiraAtualizada)
+        {
+            var carteiraExistente = _carteiras.FirstOrDefault(c => c.NumeroCarteira == numero);
+
+            if (carteiraExistente == null)
+                return NotFound();
+
+            if (carteiraAtualizada.ApetiteCarteira < 0)
+                return BadRequest(new { message = "O apetite da carteira deve ser maior ou igual a zero." });
+
+            carteiraExistente.NomeCarteira = carteiraAtualizada.NomeCarteira;
+            carteiraExistente.ApetiteCarteira = carteiraAtualizada.ApetiteCarteira;
+
+            return NoContent();
+        }
 
 
 
