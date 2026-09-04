@@ -27,6 +27,17 @@ namespace BancoSENAIAPI.Controllers
             return Created("", _service.Cadastrar(cliente));
         }
 
+        [HttpPut("{codigo}")]
+        public IActionResult Alterar(int codigo, [FromBody] Cliente cliente)
+        {
+            var clienteAtualizado = _service.Alterar(codigo, cliente);
+
+            if (clienteAtualizado == null)
+                return NotFound();
+
+            return NoContent();
+        }
+
 
 
     }

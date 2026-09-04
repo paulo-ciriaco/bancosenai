@@ -19,5 +19,24 @@ namespace BancoSENAIAPI.Repositories
 
             return cliente;
         }
+
+        public Cliente? Alterar(int codigo, Cliente clienteAtualizado)
+        {
+            var cliente = _clientes.FirstOrDefault(c => c.CodigoCliente == codigo);
+
+            if (cliente == null)
+                return null;
+
+            cliente.NomeCliente = clienteAtualizado.NomeCliente;
+            cliente.CPF = clienteAtualizado.CPF;
+            cliente.NumeroAgencia = clienteAtualizado.NumeroAgencia;
+            cliente.DataNascimento = clienteAtualizado.DataNascimento;
+            cliente.Sexo = clienteAtualizado.Sexo;
+            cliente.Endereco = clienteAtualizado.Endereco;
+            cliente.Cidade = clienteAtualizado.Cidade;
+            cliente.Estado = clienteAtualizado.Estado;
+
+            return cliente;
+        }
     }
 }

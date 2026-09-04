@@ -21,5 +21,10 @@ namespace BancoSENAIAPI.Services
         {
             return _repository.Cadastrar(cliente);
         }
+
+        public Cliente? Alterar(int codigo, Cliente clienteAtualizado)
+        {
+            return _repository.Alterar(codigo, clienteAtualizado);
+        }
     }
 }
