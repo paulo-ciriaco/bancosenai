@@ -38,5 +38,16 @@ namespace BancoSENAIAPI.Repositories
 
             return cliente;
         }
+        public bool Excluir(int codigo)
+        {
+            var cliente = _clientes.FirstOrDefault(c => c.CodigoCliente == codigo);
+
+            if (cliente == null)
+                return false;
+
+            _clientes.Remove(cliente);
+
+            return true;
+        }
     }
 }

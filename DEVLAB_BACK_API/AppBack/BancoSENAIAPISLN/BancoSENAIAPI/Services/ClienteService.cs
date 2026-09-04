@@ -26,5 +26,10 @@ namespace BancoSENAIAPI.Services
         {
             return _repository.Alterar(codigo, clienteAtualizado);
         }
+
+        public bool Excluir(int codigo)
+        {
+            return _repository.Excluir(codigo);
+        }
     }
 }

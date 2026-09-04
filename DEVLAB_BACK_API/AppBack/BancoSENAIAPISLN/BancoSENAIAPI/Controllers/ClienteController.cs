@@ -38,6 +38,17 @@ namespace BancoSENAIAPI.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{codigo}")]
+        public IActionResult Excluir(int codigo)
+        {
+            var excluido = _service.Excluir(codigo);
+
+            if (!excluido)
+                return NotFound();
+
+            return Ok(new { message = "Cliente excluído com sucesso." });
+        }
+
 
 
     }
