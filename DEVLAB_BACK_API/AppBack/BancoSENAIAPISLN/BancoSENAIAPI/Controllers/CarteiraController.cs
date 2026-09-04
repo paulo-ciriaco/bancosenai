@@ -46,6 +46,19 @@ namespace BancoSENAIAPI.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{numero}")]
+        public IActionResult Excluir(int numero)
+        {
+            var carteira = _carteiras.FirstOrDefault(c => c.NumeroCarteira == numero);
+
+            if (carteira == null)
+                return NotFound();
+
+            _carteiras.Remove(carteira);
+
+            return Ok(new { message = "Carteira excluída com sucesso." });
+        }
+
 
 
 
