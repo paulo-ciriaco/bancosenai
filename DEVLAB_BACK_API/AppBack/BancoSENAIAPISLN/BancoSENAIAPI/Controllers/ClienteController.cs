@@ -21,6 +21,11 @@ namespace BancoSENAIAPI.Controllers
             return Ok(_service.ListarTodos());
         }
 
+        [HttpPost]
+        public IActionResult Cadastrar([FromBody] Cliente cliente)
+        {
+            return Created("", _service.Cadastrar(cliente));
+        }
 
 
 
