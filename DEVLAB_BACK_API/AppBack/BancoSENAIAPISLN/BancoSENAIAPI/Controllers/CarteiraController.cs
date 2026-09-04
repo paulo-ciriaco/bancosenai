@@ -14,5 +14,24 @@ namespace BancoSENAIAPI.Controllers
         {
             return Ok(_carteiras);
         }
+
+        [HttpPost]
+        public IActionResult Cadastrar([FromBody] Carteira novaCarteira)
+        {
+            if (_carteiras.Any(c => c.NumeroCarteira == novaCarteira.NumeroCarteira))
+                return BadRequest(new { message = "Este número de carteira já existe." });
+
+            if (novaCarteira.ApetiteCarteira < 0)
+                return BadRequest(new { message = "O apetite da carteira deve ser maior ou igual a zero." });
+
+            _carteiras.Add(novaCarteira);
+
+            return Created("", novaCarteira);
+        }
+
+
+
+
+
     }
 }
