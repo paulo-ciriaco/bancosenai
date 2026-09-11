@@ -3,7 +3,8 @@
 namespace BancoSENAIAPI.Controllers
 {
     [ApiController]
-    [Route("api/v1[controller]")]
+    [Route("api/v1/[controller]")]
+
     public class DocumentoController : Controller
     {
         private readonly string _caminhoRaiz = Path.Combine(
@@ -13,5 +14,11 @@ namespace BancoSENAIAPI.Controllers
         private static List<Models.DocumentoMetadado> _documentosMetadados = new List<Models.DocumentoMetadado>();
 
         private static int _nextId = 1;
+
+        [HttpPost("upload/{codigoCliente}")]
+        public async Task<IActionResult> AnexarArquivo(int codigoCliente, IFormFile arquivo)
+        {
+
+        }
     }
 }
