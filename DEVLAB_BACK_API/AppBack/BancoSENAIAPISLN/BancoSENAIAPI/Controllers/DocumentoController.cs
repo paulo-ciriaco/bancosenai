@@ -18,7 +18,10 @@ namespace BancoSENAIAPI.Controllers
         [HttpPost("upload/{codigoCliente}")]
         public async Task<IActionResult> AnexarArquivo(int codigoCliente, IFormFile arquivo)
         {
-
+            if (arquivo == null || arquivo.Length == 0)
+            {
+                return BadRequest("Nenhum arquivo foi enviado.");
+            }
         }
     }
 }
