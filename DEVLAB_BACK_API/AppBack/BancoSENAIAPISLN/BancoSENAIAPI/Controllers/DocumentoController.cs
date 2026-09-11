@@ -52,6 +52,63 @@ namespace BancoSENAIAPI.Controllers
             _documentosMetadados.Add(documentoMetadados);
 
             return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novoNome });
-        }   
+        }
+
+        [HttpGet("listar/{codigoCliente}")]
+        public IActionResult ListarDocumentos(int codigoCliente)
+        {
+            var documentos = _documentosMetadados
+                .Where(d => d.CodigoCliente == codigoCliente)
+                .ToList();
+
+            if (!documentos.Any())
+            {
+                return NotFound("Nenhum documento encontrado para este cliente.");
+            }
+
+            return Ok(documentos);
+        }
+
+        [HttpGet("download/{id}")]
+        public IActionResult DownloadDocumento(int id)
+        {
+            var documento = _documentosMetadados
+                .FirstOrDefault(d => d.Id == id);
+
+            if (documento == null)
+            {
+                return NotFound("Documento não encontrado.");
+            }
+
+            if (!System.IO.File.Exists(documento.Caminho))
+            {
+                return NotFound("Arquivo não encontrado no servidor.");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(documento.Caminho);
+
+            string nomeArquivo = documento.Name + documento.Extensao;
+
+            return File(fileBytes, "application/octet-stream", nomeArquivo);
+        }
+        [HttpDelete("excluir/{id}")]
+        public IActionResult ExcluirDocumento(int id)
+        {
+            var documento = _documentosMetadados
+                .FirstOrDefault(d => d.Id == id);
+
+            if (documento == null)
+            {
+                return NotFound("Documento não encontrado.");
+            }
+
+            System.IO.File.Delete(documento.Caminho);
+
+            _documentosMetadados.Remove(documento);
+
+            return Ok("Documento excluído com sucesso.");
+        }
     }
 }
+
+
