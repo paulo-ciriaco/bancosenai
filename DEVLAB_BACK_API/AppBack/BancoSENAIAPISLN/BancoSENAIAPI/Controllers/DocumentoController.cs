@@ -5,7 +5,7 @@ namespace BancoSENAIAPI.Controllers
     [ApiController]
     [Route("api/v1/[controller]")]
 
-    public class DocumentoController : Controller
+    public class DocumentoController : ControllerBase
     {
         private readonly string _caminhoRaiz = Path.Combine(
             Directory.GetCurrentDirectory(),
@@ -33,7 +33,7 @@ namespace BancoSENAIAPI.Controllers
             string extensao = Path.GetExtension(arquivo.FileName);
             string nomeOriginal = Path.GetFileNameWithoutExtension(arquivo.FileName);
             string novoNome = $"{codigoCliente}_{nomeOriginal}_{Guid.NewGuid()}{extensao}";
-            string caminhoFinal = Path.Combine(pastaCliente, novoNomeNome);
+            string caminhoFinal = Path.Combine(pastaCliente, novoNome);
 
             using (var stream = new FileStream(caminhoFinal, FileMode.Create))
             {
@@ -51,7 +51,7 @@ namespace BancoSENAIAPI.Controllers
 
             _documentosMetadados.Add(documentoMetadados);
 
-            return OK(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novoNome });
+            return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novoNome });
         }   
     }
 }
