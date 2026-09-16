@@ -23,6 +23,13 @@ namespace BancoSENAIAPI.Controllers
                 return BadRequest("Nenhum arquivo foi enviado.");
             }
 
+            long limiteTamanho = 2 * 1024 * 1024;
+
+            if (arquivo.Length > limiteTamanho)
+            {
+                return BadRequest("O arquivo excede o limite máximo de 2 MB.");
+            }
+
             string pastaCliente = Path.Combine(_caminhoRaiz, codigoCliente.ToString());
 
             if (!Directory.Exists(pastaCliente))
@@ -91,6 +98,7 @@ namespace BancoSENAIAPI.Controllers
 
             return File(fileBytes, "application/octet-stream", nomeArquivo);
         }
+
         [HttpDelete("excluir/{id}")]
         public IActionResult ExcluirDocumento(int id)
         {
@@ -110,5 +118,3 @@ namespace BancoSENAIAPI.Controllers
         }
     }
 }
-
-
