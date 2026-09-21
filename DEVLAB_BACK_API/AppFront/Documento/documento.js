@@ -50,11 +50,32 @@ async function listarDocumentos() {
                     <td>${documento.id}</td>
                     <td>${documento.nome}</td>
                     <td>${documento.extensao}</td>
-                    <td></td>
+                    <td>
+    <button onclick="baixarDocumento(${documento.id})">Baixar</button>
+</td>
                 </tr>
             `;
         });
     } else {
         alert("Erro ao buscar documentos");
+    }
+}
+
+async function baixarDocumento(id) {
+    const response = await fetch(`${URL_API}/download/${id}`);
+
+    if (response.ok) {
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "documento";
+        link.click();
+
+        window.URL.revokeObjectURL(url);
+    } else {
+        alert("Erro ao baixar o documento");
     }
 }
