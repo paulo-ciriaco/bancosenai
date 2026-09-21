@@ -50,8 +50,9 @@ async function listarDocumentos() {
                     <td>${documento.id}</td>
                     <td>${documento.nome}</td>
                     <td>${documento.extensao}</td>
-                    <td>
+              <td>
     <button onclick="baixarDocumento(${documento.id})">Baixar</button>
+    <button onclick="excluirDocumento(${documento.id})">Excluir</button>
 </td>
                 </tr>
             `;
@@ -77,5 +78,24 @@ async function baixarDocumento(id) {
         window.URL.revokeObjectURL(url);
     } else {
         alert("Erro ao baixar o documento");
+    }
+}
+
+async function excluirDocumento(id) {
+    const confirmar = confirm("Deseja excluir este documento?");
+
+    if (!confirmar) {
+        return;
+    }
+
+    const response = await fetch(`${URL_API}/excluir/${id}`, {
+        method: "DELETE"
+    });
+
+    if (response.ok) {
+        alert("Documento excluido com sucesso");
+        listarDocumentos();
+    } else {
+        alert("Erro ao excluir o documento");
     }
 }
