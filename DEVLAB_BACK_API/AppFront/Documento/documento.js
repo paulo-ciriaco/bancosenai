@@ -27,3 +27,34 @@ async function enviarDocumento() {
         alert("Erro: " + (erro.message || "Falha ao enviar o documento"));
     }
 }
+
+async function listarDocumentos() {
+    const codigoCliente = document.getElementById("codigoClienteBusca").value;
+
+    if (!codigoCliente) {
+        alert("Informe o codigo do cliente");
+        return;
+    }
+
+    const response = await fetch(`${URL_API}/listar/${codigoCliente}`);
+
+    if (response.ok) {
+        const documentos = await response.json();
+        const tabela = document.getElementById("tabelaDocumentos");
+
+        tabela.innerHTML = "";
+
+        documentos.forEach(documento => {
+            tabela.innerHTML += `
+                <tr>
+                    <td>${documento.id}</td>
+                    <td>${documento.nome}</td>
+                    <td>${documento.extensao}</td>
+                    <td></td>
+                </tr>
+            `;
+        });
+    } else {
+        alert("Erro ao buscar documentos");
+    }
+}
