@@ -1,19 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BancoSENAIAPI.Data;
+using BancoSENAIAPI.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BancoSENAIAPI.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-
     public class DocumentoController : ControllerBase
     {
+        private readonly AppDbContext _context;
+
         private readonly string _caminhoRaiz = Path.Combine(
             Directory.GetCurrentDirectory(),
             "ClienteArquivos"
-            );
-        private static List<Models.DocumentoMetadado> _documentosMetadados = new List<Models.DocumentoMetadado>();
+        );
 
-        private static int _nextId = 1;
+        public DocumentoController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpPost("upload/{codigoCliente}")]
         public async Task<IActionResult> AnexarArquivo(int codigoCliente, IFormFile arquivo)
@@ -39,7 +45,10 @@ namespace BancoSENAIAPI.Controllers
                 return BadRequest("Extensão de arquivo não permitida. Apenas .pdf, .jpg e .png são aceitos.");
             }
 
-            string pastaCliente = Path.Combine(_caminhoRaiz, codigoCliente.ToString());
+            string pastaCliente = Path.Combine(
+                _caminhoRaiz,
+                codigoCliente.ToString()
+            );
 
             if (!Directory.Exists(pastaCliente))
             {
@@ -47,7 +56,9 @@ namespace BancoSENAIAPI.Controllers
             }
 
             string nomeOriginal = Path.GetFileNameWithoutExtension(arquivo.FileName);
+
             string novoNome = $"{codigoCliente}_{nomeOriginal}_{Guid.NewGuid()}{extensao}";
+
             string caminhoFinal = Path.Combine(pastaCliente, novoNome);
 
             using (var stream = new FileStream(caminhoFinal, FileMode.Create))
@@ -55,26 +66,30 @@ namespace BancoSENAIAPI.Controllers
                 await arquivo.CopyToAsync(stream);
             }
 
-            var documentoMetadados = new Models.DocumentoMetadado
+            var documentoMetadados = new DocumentoMetadado
             {
-                Id = _nextId++,
                 Name = nomeOriginal,
                 Extensao = extensao,
                 Caminho = caminhoFinal,
                 CodigoCliente = codigoCliente
             };
 
-            _documentosMetadados.Add(documentoMetadados);
+            await _context.DocumentoMetadados.AddAsync(documentoMetadados);
+            await _context.SaveChangesAsync();
 
-            return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novoNome });
+            return Ok(new
+            {
+                mensagem = "Documento anexado com sucesso",
+                arquivoSalvo = novoNome
+            });
         }
 
         [HttpGet("listar/{codigoCliente}")]
-        public IActionResult ListarDocumentos(int codigoCliente)
+        public async Task<IActionResult> ListarDocumentos(int codigoCliente)
         {
-            var documentos = _documentosMetadados
+            var documentos = await _context.DocumentoMetadados
                 .Where(d => d.CodigoCliente == codigoCliente)
-                .ToList();
+                .ToListAsync();
 
             if (!documentos.Any())
             {
@@ -85,10 +100,10 @@ namespace BancoSENAIAPI.Controllers
         }
 
         [HttpGet("download/{id}")]
-        public IActionResult DownloadDocumento(int id)
+        public async Task<IActionResult> DownloadDocumento(int id)
         {
-            var documento = _documentosMetadados
-                .FirstOrDefault(d => d.Id == id);
+            var documento = await _context.DocumentoMetadados
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if (documento == null)
             {
@@ -100,7 +115,7 @@ namespace BancoSENAIAPI.Controllers
                 return NotFound("Arquivo não encontrado no servidor.");
             }
 
-            var fileBytes = System.IO.File.ReadAllBytes(documento.Caminho);
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(documento.Caminho);
 
             string nomeArquivo = documento.Name + documento.Extensao;
 
@@ -108,19 +123,24 @@ namespace BancoSENAIAPI.Controllers
         }
 
         [HttpDelete("excluir/{id}")]
-        public IActionResult ExcluirDocumento(int id)
+        public async Task<IActionResult> ExcluirDocumento(int id)
         {
-            var documento = _documentosMetadados
-                .FirstOrDefault(d => d.Id == id);
+            var documento = await _context.DocumentoMetadados
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if (documento == null)
             {
                 return NotFound("Documento não encontrado.");
             }
 
-            System.IO.File.Delete(documento.Caminho);
+            if (System.IO.File.Exists(documento.Caminho))
+            {
+                System.IO.File.Delete(documento.Caminho);
+            }
 
-            _documentosMetadados.Remove(documento);
+            _context.DocumentoMetadados.Remove(documento);
+
+            await _context.SaveChangesAsync();
 
             return Ok("Documento excluído com sucesso.");
         }
