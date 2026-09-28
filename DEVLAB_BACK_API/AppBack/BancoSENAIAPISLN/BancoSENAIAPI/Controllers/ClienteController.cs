@@ -1,6 +1,7 @@
 ﻿using BancoSENAIAPI.Models;
-using BancoSENAIAPI.Services;
+using BancoSENAIAPI.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BancoSENAIAPI.Controllers
 {
@@ -8,48 +9,62 @@ namespace BancoSENAIAPI.Controllers
     [Route("api/v1/[controller]")]
     public class ClienteController : ControllerBase
     {
-        private readonly ClienteService _service;
+        private readonly AppDbContext _context;
 
-        public ClienteController()
+        public ClienteController(AppDbContext context)
         {
-            _service = new ClienteService();
+            _context = context;
         }
 
         [HttpGet]
-        public IActionResult ListarTodos()
+        public async Task<IActionResult> ListarTodos()
         {
-            return Ok(_service.ListarTodos());
+            var clientes = await _context.Cliente.ToListAsync();
+
+            return Ok(clientes);
         }
 
         [HttpPost]
-        public IActionResult Cadastrar([FromBody] Cliente cliente)
+        public async Task<IActionResult> Cadastrar([FromBody] Cliente cliente)
         {
-            return Created("", _service.Cadastrar(cliente));
+            await _context.Cliente.AddAsync(cliente);
+            await _context.SaveChangesAsync();
+
+            return Created("", cliente);
         }
 
         [HttpPut("{codigo}")]
-        public IActionResult Alterar(int codigo, [FromBody] Cliente cliente)
+        public async Task<IActionResult> Alterar(int codigo, [FromBody] Cliente clienteAtualizado)
         {
-            var clienteAtualizado = _service.Alterar(codigo, cliente);
+            var clienteExistente = await _context.Cliente
+                .FirstOrDefaultAsync(c => c.CodigoCliente == codigo);
 
-            if (clienteAtualizado == null)
+            if (clienteExistente == null)
                 return NotFound();
+
+            clienteExistente.NomeCliente = clienteAtualizado.NomeCliente;
+            clienteExistente.CPF = clienteAtualizado.CPF;
+            clienteExistente.NumeroAgencia = clienteAtualizado.NumeroAgencia;
+            clienteExistente.SaldoTotal = clienteAtualizado.SaldoTotal;
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpDelete("{codigo}")]
-        public IActionResult Excluir(int codigo)
+        public async Task<IActionResult> Excluir(int codigo)
         {
-            var excluido = _service.Excluir(codigo);
+            var cliente = await _context.Cliente
+                .FirstOrDefaultAsync(c => c.CodigoCliente == codigo);
 
-            if (!excluido)
+            if (cliente == null)
                 return NotFound();
+
+            _context.Cliente.Remove(cliente);
+            await _context.SaveChangesAsync();
 
             return Ok(new { message = "Cliente excluído com sucesso." });
         }
-
-
-
     }
 }

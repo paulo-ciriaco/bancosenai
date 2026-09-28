@@ -30,14 +30,11 @@ namespace BancoSENAIAPI.Repositories
             cliente.NomeCliente = clienteAtualizado.NomeCliente;
             cliente.CPF = clienteAtualizado.CPF;
             cliente.NumeroAgencia = clienteAtualizado.NumeroAgencia;
-            cliente.DataNascimento = clienteAtualizado.DataNascimento;
-            cliente.Sexo = clienteAtualizado.Sexo;
-            cliente.Endereco = clienteAtualizado.Endereco;
-            cliente.Cidade = clienteAtualizado.Cidade;
-            cliente.Estado = clienteAtualizado.Estado;
+            cliente.SaldoTotal = clienteAtualizado.SaldoTotal;
 
             return cliente;
         }
+
         public bool Excluir(int codigo)
         {
             var cliente = _clientes.FirstOrDefault(c => c.CodigoCliente == codigo);
